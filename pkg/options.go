@@ -14,18 +14,21 @@ const (
 
 	// NullLevel disables all logging
 	NullLevel Level = logrus.PanicLevel
-	// FatalLevel level. Logs and then calls `os.Exit(1)`.
+	// FatalLevel logs and then calls `os.Exit(1)`.
 	FatalLevel Level = logrus.FatalLevel
-	// ErrorLevel level. Logs. Used for errors that should definitely be noted.
+	// ErrorLevel is used for errors that should definitely be noted.
 	// Commonly used for hooks to send errors to an error tracking service.
 	ErrorLevel Level = logrus.ErrorLevel
-	// WarnLevel level. Non-critical entries that deserve eyes.
+	// WarnLevel is for non-critical entries that deserve eyes.
 	WarnLevel Level = logrus.WarnLevel
-	// InfoLevel level. General operational entries about what's going on inside the
+	// InfoLevel provides general operational entries about what's going on inside the
 	// application.
 	InfoLevel Level = logrus.InfoLevel
-	// DebugLevel level. Usually only enabled when debugging. Very verbose logging.
+	// DebugLevel is used to report application state for debugging perposes.
 	DebugLevel Level = logrus.DebugLevel
+	// TraceLevel is used to trace the execution steps of an application for debugging
+	// or optimization purposes.
+	TraceLevel Level = logrus.TraceLevel
 )
 
 type (

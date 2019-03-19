@@ -8,6 +8,9 @@ func noState(error)                               {}
 func (noop) Fatal(v ...interface{})               { logrus.Fatal(v...) }
 func (noop) Fatalf(fmt string, v ...interface{})  { logrus.Fatalf(fmt, v...) }
 func (noop) Fatalln(v ...interface{})             { logrus.Fatalln(v...) }
+func (noop) Trace(...interface{})                 {}
+func (noop) Tracef(string, ...interface{})        {}
+func (noop) Traceln(...interface{})               {}
 func (noop) Debug(...interface{})                 {}
 func (noop) Debugf(string, ...interface{})        {}
 func (noop) Debugln(...interface{})               {}

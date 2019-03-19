@@ -19,6 +19,10 @@ type Logger interface {
 	Fatalf(string, ...interface{})
 	Fatalln(...interface{})
 
+	Trace(...interface{})
+	Tracef(string, ...interface{})
+	Traceln(...interface{})
+
 	Debug(...interface{})
 	Debugf(string, ...interface{})
 	Debugln(...interface{})
@@ -65,72 +69,44 @@ func (f errState) Eval(err error) {
 	f(err)
 }
 
-type fieldLogger struct {
-	log logrus.FieldLogger
-}
+type fieldLogger struct{ log logrus.Ext1FieldLogger }
 
 // WrapLogrus is a convenience function
-func WrapLogrus(l logrus.FieldLogger) Logger {
+func WrapLogrus(l logrus.Ext1FieldLogger) Logger {
 	return fieldLogger{log: l}
 }
 
-func (l fieldLogger) Fatal(v ...interface{}) {
-	l.log.Fatal(v...)
+func (l fieldLogger) Fatal(v ...interface{})              { l.log.Fatal(v...) }
+func (l fieldLogger) Fatalf(fmt string, v ...interface{}) { l.log.Fatalf(fmt, v...) }
+func (l fieldLogger) Fatalln(v ...interface{})            { l.log.Fatalln(v...) }
+func (l fieldLogger) Trace(v ...interface{})              { l.log.Trace(v...) }
+func (l fieldLogger) Tracef(fmt string, v ...interface{}) { l.log.Tracef(fmt, v...) }
+func (l fieldLogger) Traceln(v ...interface{})            { l.log.Traceln(v...) }
+func (l fieldLogger) Debug(v ...interface{})              { l.log.Debug(v...) }
+func (l fieldLogger) Debugf(fmt string, v ...interface{}) { l.log.Debugf(fmt, v...) }
+func (l fieldLogger) Debugln(v ...interface{})            { l.log.Debugln(v...) }
+func (l fieldLogger) Info(v ...interface{})               { l.log.Info(v...) }
+func (l fieldLogger) Infof(fmt string, v ...interface{})  { l.log.Infof(fmt, v...) }
+func (l fieldLogger) Infoln(v ...interface{})             { l.log.Infoln(v...) }
+func (l fieldLogger) Warn(v ...interface{})               { l.log.Warn(v...) }
+func (l fieldLogger) Warnf(fmt string, v ...interface{})  { l.log.Warnf(fmt, v) }
+func (l fieldLogger) Warnln(v ...interface{})             { l.log.Warnln(v...) }
+func (l fieldLogger) Error(v ...interface{})              { l.log.Error(v...) }
+func (l fieldLogger) Errorf(fmt string, v ...interface{}) { l.log.Errorf(fmt, v...) }
+func (l fieldLogger) Errorln(v ...interface{})            { l.log.Errorln(v...) }
 
-}
-func (l fieldLogger) Fatalf(fmt string, v ...interface{}) {
-	l.log.Fatalf(fmt, v...)
-
-}
-func (l fieldLogger) Fatalln(v ...interface{}) {
-	l.log.Fatalln(v...)
-
-}
-func (l fieldLogger) Debug(v ...interface{}) {
-	l.log.Debug(v...)
-}
-func (l fieldLogger) Debugf(fmt string, v ...interface{}) {
-	l.log.Debugf(fmt, v...)
-}
-func (l fieldLogger) Debugln(v ...interface{}) {
-	l.log.Debugln(v...)
-}
-func (l fieldLogger) Info(v ...interface{}) {
-	l.log.Info(v...)
-}
-func (l fieldLogger) Infof(fmt string, v ...interface{}) {
-	l.log.Infof(fmt, v...)
-}
-func (l fieldLogger) Infoln(v ...interface{}) {
-	l.log.Infoln(v...)
-}
-func (l fieldLogger) Warn(v ...interface{}) {
-	l.log.Warn(v...)
-}
-func (l fieldLogger) Warnf(fmt string, v ...interface{}) {
-	l.log.Warnf(fmt, v)
-}
-func (l fieldLogger) Warnln(v ...interface{}) {
-	l.log.Warnln(v...)
-}
-func (l fieldLogger) Error(v ...interface{}) {
-	l.log.Error(v...)
-}
-func (l fieldLogger) Errorf(fmt string, v ...interface{}) {
-	l.log.Errorf(fmt, v...)
-}
-func (l fieldLogger) Errorln(v ...interface{}) {
-	l.log.Errorln(v...)
-}
 func (l fieldLogger) WithLocus(locus string) Logger {
 	return l.WithField(locusLabel, locus)
 }
+
 func (l fieldLogger) WithError(err error) Logger {
 	return (*entry)(unsafe.Pointer(l.log.WithError(err)))
 }
+
 func (l fieldLogger) WithField(k string, v interface{}) Logger {
 	return (*entry)(unsafe.Pointer(l.log.WithField(k, v)))
 }
+
 func (l fieldLogger) WithFields(f F) Logger {
 	return (*entry)(unsafe.Pointer(l.log.WithFields(logrus.Fields(f))))
 }
@@ -165,6 +141,16 @@ func (e *entry) Fatalf(fmt string, v ...interface{}) {
 }
 func (e *entry) Fatalln(v ...interface{}) {
 	(*logrus.Entry)(unsafe.Pointer(e)).Fatalln(v...)
+}
+
+func (e *entry) Trace(v ...interface{}) {
+	(*logrus.Entry)(unsafe.Pointer(e)).Trace(v...)
+}
+func (e *entry) Tracef(fmt string, v ...interface{}) {
+	(*logrus.Entry)(unsafe.Pointer(e)).Tracef(fmt, v...)
+}
+func (e *entry) Traceln(v ...interface{}) {
+	(*logrus.Entry)(unsafe.Pointer(e)).Traceln(v...)
 }
 
 func (e *entry) Debug(v ...interface{}) {
