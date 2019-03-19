@@ -250,13 +250,13 @@ func (e *entry) IfNoErr(fn func(Logger)) ErrState {
 
 // New logger
 func New(opt ...Option) Logger {
-	cfg := new(Cfg)
+	var s spec
 
 	// Defaults
-	OptLevel(InfoLevel)(cfg)
+	OptLevel(InfoLevel)(&s)
 
 	for _, fn := range opt {
-		fn(cfg)
+		fn(&s)
 	}
-	return cfg.mkLogger()
+	return s.mkLogger()
 }

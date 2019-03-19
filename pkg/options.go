@@ -34,43 +34,42 @@ type (
 	Level      = logrus.Level
 )
 
-// Cfg creates a Logger using the logrus library
-type Cfg struct {
+type spec struct {
 	Hooks     LevelHooks
 	Formatter Formatter
 	Level     Level
 	io.Writer
 }
 
-func (cfg Cfg) mkLogger() Logger {
-	if cfg.Level == NullLevel {
+func (s spec) mkLogger() Logger {
+	if s.Level == NullLevel {
 		return noop{}
 	}
 
 	l := logrus.New()
-	l.SetLevel(cfg.Level)
+	l.SetLevel(s.Level)
 
-	if cfg.Hooks != nil {
-		l.Hooks = cfg.Hooks
+	if s.Hooks != nil {
+		l.Hooks = s.Hooks
 	}
 
-	if cfg.Formatter != nil {
-		l.Formatter = cfg.Formatter
+	if s.Formatter != nil {
+		l.Formatter = s.Formatter
 	}
 
-	if cfg.Writer != nil {
-		l.Out = cfg.Writer
+	if s.Writer != nil {
+		l.Out = s.Writer
 	}
 
 	return (*entry)(unsafe.Pointer(logrus.NewEntry(l)))
 }
 
 // Option for Logger
-type Option func(*Cfg) Option
+type Option func(*spec) Option
 
 // OptLevel sets the log level
 func OptLevel(l Level) Option {
-	return func(c *Cfg) (prev Option) {
+	return func(c *spec) (prev Option) {
 		prev = OptLevel(c.Level)
 		c.Level = l
 		return
@@ -79,7 +78,7 @@ func OptLevel(l Level) Option {
 
 // OptFormatter sets the formatter
 func OptFormatter(f Formatter) Option {
-	return func(c *Cfg) (prev Option) {
+	return func(c *spec) (prev Option) {
 		prev = OptFormatter(c.Formatter)
 		c.Formatter = f
 		return
@@ -88,7 +87,7 @@ func OptFormatter(f Formatter) Option {
 
 // OptLevelHooks sets the level hooks
 func OptLevelHooks(h LevelHooks) Option {
-	return func(c *Cfg) (prev Option) {
+	return func(c *spec) (prev Option) {
 		prev = OptLevelHooks(c.Hooks)
 		c.Hooks = h
 		return
@@ -97,7 +96,7 @@ func OptLevelHooks(h LevelHooks) Option {
 
 // OptWriter writer
 func OptWriter(w io.Writer) Option {
-	return func(c *Cfg) (prev Option) {
+	return func(c *spec) (prev Option) {
 		prev = OptWriter(c.Writer)
 		c.Writer = w
 		return
