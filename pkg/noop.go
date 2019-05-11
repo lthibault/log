@@ -1,6 +1,6 @@
 package log
 
-import "github.com/sirupsen/logrus"
+import "github.com/lthibault/logrus"
 
 type noop struct{}
 
@@ -23,10 +23,6 @@ func (noop) Warnln(...interface{})                {}
 func (noop) Error(...interface{})                 {}
 func (noop) Errorf(string, ...interface{})        {}
 func (noop) Errorln(...interface{})               {}
-func (noop) WithLocus(string) Logger              { return noop{} }
 func (noop) WithError(error) Logger               { return noop{} }
 func (noop) WithField(string, interface{}) Logger { return noop{} }
 func (noop) WithFields(F) Logger                  { return noop{} }
-func (noop) State(func(Logger)) State             { return state(func() {}) }
-func (noop) IfErr(func(Logger)) ErrState          { return errState(noState) }
-func (noop) IfNoErr(func(Logger)) ErrState        { return errState(noState) }

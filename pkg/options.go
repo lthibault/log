@@ -4,7 +4,7 @@ import (
 	"io"
 	"unsafe"
 
-	"github.com/sirupsen/logrus"
+	"github.com/lthibault/logrus"
 )
 
 type key uint16

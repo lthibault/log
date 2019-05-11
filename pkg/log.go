@@ -3,7 +3,7 @@ package log
 import (
 	"unsafe"
 
-	"github.com/sirupsen/logrus"
+	"github.com/lthibault/logrus"
 )
 
 const (
@@ -39,34 +39,9 @@ type Logger interface {
 	Errorf(string, ...interface{})
 	Errorln(...interface{})
 
-	WithLocus(string) Logger
 	WithError(error) Logger
 	WithField(string, interface{}) Logger
 	WithFields(F) Logger
-
-	State(func(Logger)) State
-	IfErr(func(Logger)) ErrState
-	IfNoErr(func(Logger)) ErrState
-}
-
-// State is a deferrable function
-type State interface {
-	Eval()
-}
-
-type state func()
-
-func (f state) Eval() { f() }
-
-// ErrState is a deferrable error check
-type ErrState interface {
-	Eval(error)
-}
-
-type errState func(error)
-
-func (f errState) Eval(err error) {
-	f(err)
 }
 
 type fieldLogger struct{ log logrus.Ext1FieldLogger }
@@ -95,10 +70,6 @@ func (l fieldLogger) Error(v ...interface{})              { l.log.Error(v...) }
 func (l fieldLogger) Errorf(fmt string, v ...interface{}) { l.log.Errorf(fmt, v...) }
 func (l fieldLogger) Errorln(v ...interface{})            { l.log.Errorln(v...) }
 
-func (l fieldLogger) WithLocus(locus string) Logger {
-	return l.WithField(locusLabel, locus)
-}
-
 func (l fieldLogger) WithError(err error) Logger {
 	return (*entry)(unsafe.Pointer(l.log.WithError(err)))
 }
@@ -109,26 +80,6 @@ func (l fieldLogger) WithField(k string, v interface{}) Logger {
 
 func (l fieldLogger) WithFields(f F) Logger {
 	return (*entry)(unsafe.Pointer(l.log.WithFields(logrus.Fields(f))))
-}
-
-func (l fieldLogger) State(f func(Logger)) State {
-	return state(func() { f(l) })
-}
-
-func (l fieldLogger) IfErr(fn func(Logger)) ErrState {
-	return errState(func(err error) {
-		if err != nil {
-			fn(l)
-		}
-	})
-}
-
-func (l fieldLogger) IfNoErr(fn func(Logger)) ErrState {
-	return errState(func(err error) {
-		if err == nil {
-			fn(l)
-		}
-	})
 }
 
 type entry logrus.Entry
@@ -193,9 +144,6 @@ func (e *entry) Errorln(v ...interface{}) {
 	(*logrus.Entry)(unsafe.Pointer(e)).Errorln(v...)
 }
 
-func (e *entry) WithLocus(locus string) Logger {
-	return e.WithField(locusLabel, locus)
-}
 func (e *entry) WithError(err error) Logger {
 	return (*entry)(unsafe.Pointer(
 		(*logrus.Entry)(unsafe.Pointer(e)).WithError(err),
@@ -212,26 +160,6 @@ func (e *entry) WithFields(f F) Logger {
 			logrus.Fields(f),
 		),
 	))
-}
-
-func (e *entry) State(f func(Logger)) State {
-	return state(func() { f(e) })
-}
-
-func (e *entry) IfErr(fn func(Logger)) ErrState {
-	return errState(func(err error) {
-		if err != nil {
-			fn(e)
-		}
-	})
-}
-
-func (e *entry) IfNoErr(fn func(Logger)) ErrState {
-	return errState(func(err error) {
-		if err == nil {
-			fn(e)
-		}
-	})
 }
 
 // New logger
