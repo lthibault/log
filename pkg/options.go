@@ -4,7 +4,7 @@ import (
 	"io"
 	"unsafe"
 
-	"github.com/lthibault/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 type key uint16
@@ -33,13 +33,12 @@ const (
 
 type (
 	LevelHooks = logrus.LevelHooks
-	Formatter  = logrus.Formatter
 	Level      = logrus.Level
 )
 
 type spec struct {
 	Hooks     LevelHooks
-	Formatter Formatter
+	Formatter logrus.Formatter
 	Level     Level
 	io.Writer
 }
@@ -80,7 +79,7 @@ func OptLevel(l Level) Option {
 }
 
 // OptFormatter sets the formatter
-func OptFormatter(f Formatter) Option {
+func OptFormatter(f logrus.Formatter) Option {
 	return func(c *spec) (prev Option) {
 		prev = OptFormatter(c.Formatter)
 		c.Formatter = f
