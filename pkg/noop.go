@@ -1,6 +1,6 @@
 package log
 
-import "github.com/lthibault/logrus"
+import "github.com/sirupsen/logrus"
 
 type noop struct{}
 

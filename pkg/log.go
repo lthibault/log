@@ -3,7 +3,7 @@ package log
 import (
 	"unsafe"
 
-	"github.com/lthibault/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 const (

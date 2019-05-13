@@ -1,6 +1,6 @@
 package log
 
-import "github.com/lthibault/logrus"
+import "github.com/sirupsen/logrus"
 
 func Fatal(v ...interface{})              { logrus.StandardLogger().Fatal(v...) }
 func Fatalf(fmt string, v ...interface{}) { logrus.StandardLogger().Fatalf(fmt, v...) }
