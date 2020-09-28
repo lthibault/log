@@ -9,7 +9,7 @@ type F map[string]interface{}
 
 // Loggable types provide a loggable representation of their internal state.
 type Loggable interface {
-	Loggable() F
+	Loggable() map[string]interface{}
 }
 
 // Logger provides observability
