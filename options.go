@@ -2,7 +2,6 @@ package log
 
 import (
 	"io"
-	"unsafe"
 
 	"github.com/sirupsen/logrus"
 )
@@ -10,10 +9,6 @@ import (
 type key uint16
 
 const (
-	keyLogger key = iota
-
-	// NullLevel disables all logging
-	NullLevel Level = logrus.PanicLevel
 	// FatalLevel logs and then calls `os.Exit(1)`.
 	FatalLevel Level = logrus.FatalLevel
 	// ErrorLevel is used for errors that should definitely be noted.
@@ -32,8 +27,10 @@ const (
 )
 
 type (
+	// LevelHooks .
 	LevelHooks = logrus.LevelHooks
-	Level      = logrus.Level
+	// Level .
+	Level = logrus.Level
 )
 
 type spec struct {
@@ -44,10 +41,6 @@ type spec struct {
 }
 
 func (s spec) mkLogger() Logger {
-	if s.Level == NullLevel {
-		return noop{}
-	}
-
 	l := logrus.New()
 	l.SetLevel(s.Level)
 
@@ -63,44 +56,50 @@ func (s spec) mkLogger() Logger {
 		l.Out = s.Writer
 	}
 
-	return (*entry)(unsafe.Pointer(logrus.NewEntry(l)))
+	return (*entry)(logrus.NewEntry(l))
 }
 
 // Option for Logger
 type Option func(*spec) Option
 
-// OptLevel sets the log level
-func OptLevel(l Level) Option {
+// WithLevel sets the log level
+func WithLevel(l Level) Option {
 	return func(c *spec) (prev Option) {
-		prev = OptLevel(c.Level)
+		prev = WithLevel(c.Level)
 		c.Level = l
 		return
 	}
 }
 
-// OptFormatter sets the formatter
-func OptFormatter(f logrus.Formatter) Option {
+// WithFormatter sets the formatter
+func WithFormatter(f logrus.Formatter) Option {
 	return func(c *spec) (prev Option) {
-		prev = OptFormatter(c.Formatter)
+		prev = WithFormatter(c.Formatter)
 		c.Formatter = f
 		return
 	}
 }
 
-// OptLevelHooks sets the level hooks
-func OptLevelHooks(h LevelHooks) Option {
+// WithLevelHooks sets the level hooks
+func WithLevelHooks(h LevelHooks) Option {
 	return func(c *spec) (prev Option) {
-		prev = OptLevelHooks(c.Hooks)
+		prev = WithLevelHooks(c.Hooks)
 		c.Hooks = h
 		return
 	}
 }
 
-// OptWriter writer
-func OptWriter(w io.Writer) Option {
+// WithWriter writer
+func WithWriter(w io.Writer) Option {
 	return func(c *spec) (prev Option) {
-		prev = OptWriter(c.Writer)
+		prev = WithWriter(c.Writer)
 		c.Writer = w
 		return
 	}
+}
+
+func withDefaults(opt []Option) []Option {
+	return append([]Option{
+		WithLevel(InfoLevel),
+	}, opt...)
 }

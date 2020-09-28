@@ -1,17 +1,16 @@
 package log
 
 import (
-	"unsafe"
-
 	"github.com/sirupsen/logrus"
-)
-
-const (
-	locusLabel = "locus"
 )
 
 // F is a set of fields
 type F map[string]interface{}
+
+// Loggable types provide a loggable representation of their internal state.
+type Loggable interface {
+	Loggable() F
+}
 
 // Logger provides observability
 type Logger interface {
@@ -39,6 +38,7 @@ type Logger interface {
 	Errorf(string, ...interface{})
 	Errorln(...interface{})
 
+	With(Loggable) Logger
 	WithError(error) Logger
 	WithField(string, interface{}) Logger
 	WithFields(F) Logger
@@ -70,107 +70,71 @@ func (l fieldLogger) Error(v ...interface{})              { l.log.Error(v...) }
 func (l fieldLogger) Errorf(fmt string, v ...interface{}) { l.log.Errorf(fmt, v...) }
 func (l fieldLogger) Errorln(v ...interface{})            { l.log.Errorln(v...) }
 
+func (l fieldLogger) With(v Loggable) Logger {
+	return l.WithFields(v.Loggable())
+}
+
 func (l fieldLogger) WithError(err error) Logger {
-	return (*entry)(unsafe.Pointer(l.log.WithError(err)))
+	return (*entry)(l.log.WithError(err))
 }
 
 func (l fieldLogger) WithField(k string, v interface{}) Logger {
-	return (*entry)(unsafe.Pointer(l.log.WithField(k, v)))
+	return (*entry)(l.log.WithField(k, v))
 }
 
 func (l fieldLogger) WithFields(f F) Logger {
-	return (*entry)(unsafe.Pointer(l.log.WithFields(logrus.Fields(f))))
+	return (*entry)(l.log.WithFields(logrus.Fields(f)))
 }
 
 type entry logrus.Entry
 
-func (e *entry) Fatal(v ...interface{}) {
-	(*logrus.Entry)(unsafe.Pointer(e)).Fatal(v...)
-}
-func (e *entry) Fatalf(fmt string, v ...interface{}) {
-	(*logrus.Entry)(unsafe.Pointer(e)).Fatalf(fmt, v...)
-}
-func (e *entry) Fatalln(v ...interface{}) {
-	(*logrus.Entry)(unsafe.Pointer(e)).Fatalln(v...)
-}
+func (e *entry) Fatal(v ...interface{})              { (*logrus.Entry)(e).Fatal(v...) }
+func (e *entry) Fatalf(fmt string, v ...interface{}) { (*logrus.Entry)(e).Fatalf(fmt, v...) }
+func (e *entry) Fatalln(v ...interface{})            { (*logrus.Entry)(e).Fatalln(v...) }
 
-func (e *entry) Trace(v ...interface{}) {
-	(*logrus.Entry)(unsafe.Pointer(e)).Trace(v...)
-}
-func (e *entry) Tracef(fmt string, v ...interface{}) {
-	(*logrus.Entry)(unsafe.Pointer(e)).Tracef(fmt, v...)
-}
-func (e *entry) Traceln(v ...interface{}) {
-	(*logrus.Entry)(unsafe.Pointer(e)).Traceln(v...)
-}
+func (e *entry) Trace(v ...interface{})              { (*logrus.Entry)(e).Trace(v...) }
+func (e *entry) Tracef(fmt string, v ...interface{}) { (*logrus.Entry)(e).Tracef(fmt, v...) }
+func (e *entry) Traceln(v ...interface{})            { (*logrus.Entry)(e).Traceln(v...) }
 
-func (e *entry) Debug(v ...interface{}) {
-	(*logrus.Entry)(unsafe.Pointer(e)).Debug(v...)
-}
-func (e *entry) Debugf(fmt string, v ...interface{}) {
-	(*logrus.Entry)(unsafe.Pointer(e)).Debugf(fmt, v...)
-}
-func (e *entry) Debugln(v ...interface{}) {
-	(*logrus.Entry)(unsafe.Pointer(e)).Debugln(v...)
-}
+func (e *entry) Debug(v ...interface{})              { (*logrus.Entry)(e).Debug(v...) }
+func (e *entry) Debugf(fmt string, v ...interface{}) { (*logrus.Entry)(e).Debugf(fmt, v...) }
+func (e *entry) Debugln(v ...interface{})            { (*logrus.Entry)(e).Debugln(v...) }
 
-func (e *entry) Info(v ...interface{}) {
-	(*logrus.Entry)(unsafe.Pointer(e)).Info(v...)
-}
-func (e *entry) Infof(fmt string, v ...interface{}) {
-	(*logrus.Entry)(unsafe.Pointer(e)).Infof(fmt, v...)
-}
-func (e *entry) Infoln(v ...interface{}) {
-	(*logrus.Entry)(unsafe.Pointer(e)).Infoln(v...)
-}
+func (e *entry) Info(v ...interface{})              { (*logrus.Entry)(e).Info(v...) }
+func (e *entry) Infof(fmt string, v ...interface{}) { (*logrus.Entry)(e).Infof(fmt, v...) }
+func (e *entry) Infoln(v ...interface{})            { (*logrus.Entry)(e).Infoln(v...) }
 
-func (e *entry) Warn(v ...interface{}) {
-	(*logrus.Entry)(unsafe.Pointer(e)).Warn(v...)
-}
-func (e *entry) Warnf(fmt string, v ...interface{}) {
-	(*logrus.Entry)(unsafe.Pointer(e)).Warnf(fmt, v...)
-}
-func (e *entry) Warnln(v ...interface{}) {
-	(*logrus.Entry)(unsafe.Pointer(e)).Warnln(v...)
-}
+func (e *entry) Warn(v ...interface{})              { (*logrus.Entry)(e).Warn(v...) }
+func (e *entry) Warnf(fmt string, v ...interface{}) { (*logrus.Entry)(e).Warnf(fmt, v...) }
+func (e *entry) Warnln(v ...interface{})            { (*logrus.Entry)(e).Warnln(v...) }
 
-func (e *entry) Error(v ...interface{}) {
-	(*logrus.Entry)(unsafe.Pointer(e)).Error(v...)
-}
-func (e *entry) Errorf(fmt string, v ...interface{}) {
-	(*logrus.Entry)(unsafe.Pointer(e)).Errorf(fmt, v...)
-}
-func (e *entry) Errorln(v ...interface{}) {
-	(*logrus.Entry)(unsafe.Pointer(e)).Errorln(v...)
+func (e *entry) Error(v ...interface{})              { (*logrus.Entry)(e).Error(v...) }
+func (e *entry) Errorf(fmt string, v ...interface{}) { (*logrus.Entry)(e).Errorf(fmt, v...) }
+func (e *entry) Errorln(v ...interface{})            { (*logrus.Entry)(e).Errorln(v...) }
+
+func (e *entry) With(v Loggable) Logger {
+	return e.WithFields(v.Loggable())
 }
 
 func (e *entry) WithError(err error) Logger {
-	return (*entry)(unsafe.Pointer(
-		(*logrus.Entry)(unsafe.Pointer(e)).WithError(err),
-	))
+	return (*entry)((*logrus.Entry)(e).WithError(err))
 }
+
 func (e *entry) WithField(k string, v interface{}) Logger {
-	return (*entry)(unsafe.Pointer(
-		(*logrus.Entry)(unsafe.Pointer(e)).WithField(k, v),
-	))
+	return (*entry)((*logrus.Entry)(e).WithField(k, v))
 }
+
 func (e *entry) WithFields(f F) Logger {
-	return (*entry)(unsafe.Pointer(
-		(*logrus.Entry)(unsafe.Pointer(e)).WithFields(
-			logrus.Fields(f),
-		),
-	))
+	return (*entry)((*logrus.Entry)(e).WithFields(logrus.Fields(f)))
 }
 
 // New logger
 func New(opt ...Option) Logger {
 	var s spec
 
-	// Defaults
-	OptLevel(InfoLevel)(&s)
-
-	for _, fn := range opt {
-		fn(&s)
+	for _, option := range withDefaults(opt) {
+		option(&s)
 	}
+
 	return s.mkLogger()
 }
