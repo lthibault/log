@@ -4,6 +4,54 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const (
+	// FatalLevel logs and then calls `os.Exit(1)`.
+	FatalLevel Level = iota
+
+	// ErrorLevel is used for errors that should definitely be noted.
+	// Commonly used for hooks to send errors to an error tracking service.
+	ErrorLevel
+
+	// WarnLevel is for non-critical entries that deserve eyes.
+	WarnLevel
+
+	// InfoLevel provides general operational entries about what's going on inside the
+	// application.
+	InfoLevel
+
+	// DebugLevel is used to report application state for debugging perposes.
+	DebugLevel
+
+	// TraceLevel is used to trace the execution steps of an application for debugging
+	// or optimization purposes.
+	TraceLevel
+)
+
+// Level .
+type Level uint8
+
+func (lvl Level) toLogrus() logrus.Level {
+	switch lvl {
+	case FatalLevel:
+		return logrus.FatalLevel
+	case ErrorLevel:
+		return logrus.ErrorLevel
+	case WarnLevel:
+		return logrus.WarnLevel
+	case InfoLevel:
+		return logrus.InfoLevel
+	case DebugLevel:
+		return logrus.DebugLevel
+	case TraceLevel:
+		return logrus.TraceLevel
+	default:
+		panic(lvl)
+	}
+}
+
+// LevelHooks .
+type LevelHooks = logrus.LevelHooks
+
 // F is a set of fields
 type F map[string]interface{}
 
@@ -130,11 +178,11 @@ func (e *entry) WithFields(f F) Logger {
 
 // New logger
 func New(opt ...Option) Logger {
-	var s spec
+	log := logrus.New()
 
 	for _, option := range withDefaults(opt) {
-		option(&s)
+		option(log)
 	}
 
-	return s.mkLogger()
+	return fieldLogger{log}
 }
