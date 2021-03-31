@@ -1,4 +1,7 @@
+// Package log contains an improved API and utilities for github.com/sirupsen/logrus
 package log
+
+//go:generate mockgen -source=log.go -destination=test/logtest.go -package=logtest
 
 import (
 	"github.com/sirupsen/logrus"
