@@ -58,6 +58,9 @@ type LevelHooks = logrus.LevelHooks
 // F is a set of fields
 type F map[string]interface{}
 
+// Loggable allows Logger.With to consume an F.
+func (f F) Loggable() map[string]interface{} { return f }
+
 // Loggable types provide a loggable representation of their internal state.
 type Loggable interface {
 	Loggable() map[string]interface{}
@@ -92,7 +95,7 @@ type Logger interface {
 	With(Loggable) Logger
 	WithError(error) Logger
 	WithField(string, interface{}) Logger
-	WithFields(F) Logger
+	WithFields(logrus.Fields) Logger
 }
 
 type fieldLogger struct{ log logrus.Ext1FieldLogger }
@@ -133,8 +136,8 @@ func (l fieldLogger) WithField(k string, v interface{}) Logger {
 	return (*entry)(l.log.WithField(k, v))
 }
 
-func (l fieldLogger) WithFields(f F) Logger {
-	return (*entry)(l.log.WithFields(logrus.Fields(f)))
+func (l fieldLogger) WithFields(f logrus.Fields) Logger {
+	return (*entry)(l.log.WithFields(f))
 }
 
 type entry logrus.Entry
@@ -175,8 +178,8 @@ func (e *entry) WithField(k string, v interface{}) Logger {
 	return (*entry)((*logrus.Entry)(e).WithField(k, v))
 }
 
-func (e *entry) WithFields(f F) Logger {
-	return (*entry)((*logrus.Entry)(e).WithFields(logrus.Fields(f)))
+func (e *entry) WithFields(f logrus.Fields) Logger {
+	return (*entry)((*logrus.Entry)(e).WithFields(f))
 }
 
 // New logger

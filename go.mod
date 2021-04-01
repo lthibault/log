@@ -5,5 +5,6 @@ go 1.15
 require (
 	github.com/golang/mock v1.5.0
 	github.com/sirupsen/logrus v1.8.1
+	go.uber.org/zap v1.16.0
 	golang.org/x/sys v0.0.0-20210331175145-43e1dd70ce54 // indirect
 )
