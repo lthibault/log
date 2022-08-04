@@ -11,9 +11,24 @@ import (
 type Option func(*logrus.Logger)
 
 // WithLevel sets the log level
-func WithLevel(l Level) Option {
+func WithLevel(lvl Level) Option {
 	return func(log *logrus.Logger) {
-		log.Level = l.toLogrus()
+		switch lvl {
+		case FatalLevel:
+			log.Level = logrus.FatalLevel
+		case ErrorLevel:
+			log.Level = logrus.ErrorLevel
+		case WarnLevel:
+			log.Level = logrus.WarnLevel
+		case InfoLevel:
+			log.Level = logrus.InfoLevel
+		case DebugLevel:
+			log.Level = logrus.DebugLevel
+		case TraceLevel:
+			log.Level = logrus.TraceLevel
+		default:
+			panic(lvl)
+		}
 	}
 }
 

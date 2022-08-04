@@ -30,29 +30,11 @@ const (
 	TraceLevel
 )
 
-// Level .
+// Level indicates the minimum severity threshold for logging.
 type Level uint8
 
-func (lvl Level) toLogrus() logrus.Level {
-	switch lvl {
-	case FatalLevel:
-		return logrus.FatalLevel
-	case ErrorLevel:
-		return logrus.ErrorLevel
-	case WarnLevel:
-		return logrus.WarnLevel
-	case InfoLevel:
-		return logrus.InfoLevel
-	case DebugLevel:
-		return logrus.DebugLevel
-	case TraceLevel:
-		return logrus.TraceLevel
-	default:
-		panic(lvl)
-	}
-}
-
-// LevelHooks .
+// LevelHooks is a collection of hooks that are synchronously
+// triggered for each logging event.
 type LevelHooks = logrus.LevelHooks
 
 // F is a set of fields
